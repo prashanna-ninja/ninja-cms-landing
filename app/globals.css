@@ -1,0 +1,400 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-navy: #0b2d6f;
+  --color-brand: #1a4db3;
+  --color-brand-pressed: #153f94;
+  --color-brand-light: #4a7ad4;
+  --color-brand-soft: #e8f0fd;
+  --color-page: #f0f4fb;
+  --color-card: #ffffff;
+  --color-ink: #0d1b3e;
+  --color-ink-soft: #4a5878;
+  --color-muted: #6b7a99;
+  --color-line: #e2e8f2;
+
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 16px;
+  --radius-button: 12px;
+  --radius-sheet: 28px;
+
+  --shadow-card: 0 1px 2px rgb(13 27 62 / 0.06);
+  --shadow-lift: 0 1px 2px rgb(13 27 62 / 0.06), 0 12px 32px -12px rgb(13 27 62 / 0.18);
+
+  --ease-out-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-brand);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* On blue surfaces the focus ring has to be white to be seen. */
+  .on-dark :focus-visible {
+    outline-color: #fff;
+  }
+
+  [id] {
+    scroll-margin-top: 1.5rem;
+  }
+}
+
+/* The hero surface: brand gradient, a soft glow top-right and a faint grid that fades out. */
+.hero-surface {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(135deg, #1a4db3 0%, #0b2d6f 100%);
+  overflow: hidden;
+}
+.hero-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60rem 36rem at 92% -10%, rgb(74 122 212 / 0.45), transparent 60%),
+    radial-gradient(40rem 30rem at -10% 110%, rgb(11 45 111 / 0.6), transparent 70%);
+}
+.hero-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+  mask-image: radial-gradient(ellipse 70% 80% at 75% 20%, #000 10%, transparent 70%);
+}
+
+/* The wordmark tinted brand blue for light backgrounds, from the same PNG. */
+.logo-tint {
+  background-color: var(--color-brand);
+  mask: url('/brand/ninja-cms-logo-white.png') center / contain no-repeat;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-4deg);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Above the fold: plays on load, no JavaScript needed. */
+  .rise {
+    animation: rise 400ms var(--ease-out-soft) both;
+    animation-delay: calc(var(--i, 0) * 60ms + 80ms);
+  }
+
+  /* Below the fold: <Reveal> adds .is-in when the group scrolls into view. */
+  @media (scripting: enabled) {
+    .reveal [data-rise] {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .reveal.is-in [data-rise] {
+      animation: rise 400ms var(--ease-out-soft) both;
+      animation-delay: calc(var(--i, 0) * 60ms);
+    }
+  }
+
+  .phone-float {
+    animation: float 7s ease-in-out infinite;
+  }
+
+  .skeleton {
+    background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.7) 50%, transparent 70%);
+    background-size: 200% 100%;
+    animation: shimmer 2.8s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .phone-float {
+    transform: rotate(-4deg);
+  }
+}
+
+/* FAQ answers open smoothly where the browser supports animating to auto height. */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+  details::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size 300ms var(--ease-out-soft),
+      content-visibility 300ms allow-discrete;
+  }
+  details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+/* ---------- Privacy policy reading column ---------- */
+
+.policy {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  color: var(--color-ink);
+}
+.policy > * {
+  max-width: 68ch;
+}
+.policy > :first-child {
+  margin-top: 0;
+}
+.policy p,
+.policy ul,
+.policy ol {
+  margin-top: 1em;
+}
+.policy h2 {
+  margin-top: 2.75rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--color-line);
+  font-size: 1.375rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-navy);
+}
+.policy h2 + * {
+  margin-top: 0.875rem;
+}
+.policy h2 a {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+.policy h2 a::after {
+  content: '#';
+  margin-left: 0.4em;
+  color: var(--color-brand-light);
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.policy h2:hover a::after,
+.policy h2 a:focus-visible::after {
+  opacity: 1;
+}
+.policy h2:target {
+  animation: target-flash 1.6s var(--ease-out-soft);
+}
+@keyframes target-flash {
+  from {
+    color: var(--color-brand);
+  }
+}
+.policy strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.policy a {
+  color: var(--color-brand);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgb(26 77 179 / 0.3);
+  text-underline-offset: 4px;
+}
+.policy a:hover {
+  text-decoration-color: var(--color-brand);
+}
+.policy ul,
+.policy ol {
+  padding-left: 1.4em;
+}
+.policy ul {
+  list-style: disc;
+}
+.policy ol {
+  list-style: decimal;
+}
+.policy li {
+  margin-top: 0.4em;
+  padding-left: 0.25em;
+}
+.policy li::marker {
+  color: var(--color-brand);
+  font-weight: 600;
+}
+.policy .table-wrap {
+  max-width: none;
+  margin-top: 1.25em;
+  overflow-x: auto;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+}
+.policy table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.policy th {
+  background: var(--color-page);
+  color: var(--color-navy);
+  font-weight: 600;
+  text-align: left;
+}
+.policy th,
+.policy td {
+  padding: 0.75rem 1rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-line);
+}
+.policy tr:last-child td {
+  border-bottom: 0;
+}
+.policy td:first-child {
+  font-weight: 500;
+  min-width: 10rem;
+}
+.policy mark.placeholder {
+  background: #fff4c2;
+  color: #6b4e00;
+  border-radius: 4px;
+  padding: 0 0.2em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+@media (max-width: 767px) {
+  .policy {
+    font-size: 1rem;
+  }
+}
+
+/* ---------- Landing page extras ---------- */
+
+/* The branding sketch: an organisation colour that slowly changes. */
+.org-hue {
+  background-color: #1a4db3;
+  background-image: linear-gradient(135deg, rgb(255 255 255 / 0.12), transparent 60%);
+}
+
+@keyframes org-hue {
+  0%,
+  20% {
+    background-color: #1a4db3;
+  }
+  25%,
+  45% {
+    background-color: #0e7c86;
+  }
+  50%,
+  70% {
+    background-color: #2f6b3f;
+  }
+  75%,
+  95% {
+    background-color: #6b3fa0;
+  }
+  100% {
+    background-color: #1a4db3;
+  }
+}
+
+/* The line joining the getting-started steps draws in when the group is revealed. */
+.step-line {
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .org-hue {
+    animation: org-hue 12s ease-in-out infinite;
+  }
+
+  @media (scripting: enabled) {
+    .reveal .step-line {
+      transform: scaleX(0);
+    }
+    .reveal.is-in .step-line {
+      transform: scaleX(1);
+      transition: transform 900ms var(--ease-out-soft) 200ms;
+    }
+  }
+}
+
+/* The navy security band. */
+.navy-surface {
+  position: relative;
+  isolation: isolate;
+  background: #0b2d6f;
+  overflow: hidden;
+}
+.navy-surface::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(50rem 30rem at 0% 0%, rgb(26 77 179 / 0.55), transparent 65%),
+    radial-gradient(40rem 26rem at 100% 100%, rgb(74 122 212 / 0.25), transparent 70%);
+}
+.navy-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(180deg, #000, transparent 75%);
+}
